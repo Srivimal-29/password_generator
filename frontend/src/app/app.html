@@ -29,6 +29,7 @@
                     <div class="mb-3">
                         <label for="personalName" class="form-label">Name (e.g. Alex)</label>
                         <input type="text" class="form-control" id="personalName" name="personalName" [(ngModel)]="personalName" placeholder="Leave blank for random words" style="background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff;">
+                        <div *ngIf="hasInvalidName" class="text-danger mt-1" style="font-size: 0.85rem;">Name can only contain letters (a-z, A-Z).</div>
                     </div>
                     <div class="mb-3 form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="capitalizeFirst" name="capitalizeFirst" [(ngModel)]="capitalizeFirst" style="background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
@@ -37,6 +38,7 @@
                     <div class="mb-2">
                         <label for="personalNumber" class="form-label">Number (e.g. 2024)</label>
                         <input type="text" class="form-control" id="personalNumber" name="personalNumber" [(ngModel)]="personalNumber" placeholder="Leave blank for random words" style="background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff;">
+                        <div *ngIf="hasInvalidNumber" class="text-danger mt-1" style="font-size: 0.85rem;">Number can only contain digits (0-9).</div>
                     </div>
                 </div>
 
@@ -47,7 +49,7 @@
                         <input type="range" class="form-range" id="quantity" name="quantity" min="1" max="10" [(ngModel)]="quantity">
                     </div>
                     <div class="col-6">
-                        <label for="length" class="form-label">Length / Words</label>
+                        <label for="length" class="form-label">Total Length</label>
                         <select id="length" class="form-select" name="length" [(ngModel)]="length" style="background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff;">
                             <option [ngValue]="6" style="background-color: #203a43; color: #fff;">6</option>
                             <option [ngValue]="8" style="background-color: #203a43; color: #fff;">8</option>
@@ -83,7 +85,10 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-lg w-100 mt-2" style="background: linear-gradient(45deg, #0dcaf0, #0d6efd); border: none; border-radius: 10px; padding: 12px; font-weight: 600; color: white;">Generate Secure Passwords</button>
+                <div *ngIf="hasLengthError" class="text-danger mb-3 text-center" style="font-size: 0.95rem; background: rgba(220, 53, 69, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(220, 53, 69, 0.3);">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Name and Number are too long for the selected Total Length! Please increase the Total Length.
+                </div>
+                <button type="submit" [disabled]="isInvalidPersonalized" class="btn btn-primary btn-lg w-100 mt-2" [style.opacity]="isInvalidPersonalized ? '0.5' : '1'" style="background: linear-gradient(45deg, #0dcaf0, #0d6efd); border: none; border-radius: 10px; padding: 12px; font-weight: 600; color: white;">Generate Secure Passwords</button>
             </form>
         </div>
 

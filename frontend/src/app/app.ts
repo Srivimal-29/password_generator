@@ -33,6 +33,35 @@ export class App {
   personalNumber: string = '';
   capitalizeFirst: boolean = true;
   
+  get hasInvalidName(): boolean {
+    if (this.genType === 'passphrase' || this.genType === 'personalized') {
+      return /[^a-zA-Z]/.test(this.personalName);
+    }
+    return false;
+  }
+
+  get hasInvalidNumber(): boolean {
+    if (this.genType === 'passphrase' || this.genType === 'personalized') {
+      return /[^0-9]/.test(this.personalNumber);
+    }
+    return false;
+  }
+
+  get hasLengthError(): boolean {
+    if (this.genType === 'passphrase' || this.genType === 'personalized') {
+      const nameLen = this.personalName.trim().length;
+      const numLen = this.personalNumber.trim().length;
+      if (nameLen > 0 || numLen > 0) {
+        return (nameLen + numLen) > this.length;
+      }
+    }
+    return false;
+  }
+
+  get isInvalidPersonalized(): boolean {
+    return this.hasInvalidName || this.hasInvalidNumber || this.hasLengthError;
+  }
+
   generatedPasswords = signal<string[] | null>(null);
 
   generatePassword() {
@@ -42,6 +71,7 @@ export class App {
         if (this.genType === 'passphrase' || this.genType === 'personalized') {
             let name = this.personalName.trim();
             let num = this.personalNumber.trim();
+            let tempPwd = "";
             
             if (name || num) {
                 if (this.capitalizeFirst && name.length > 0) {
@@ -50,19 +80,33 @@ export class App {
                 
                 const symbols = "!@#$%^&*()-_+={}[]|\\:;\"'";
                 let symStr = "";
-                for(let s = 0; s < 4; s++) {
-                    symStr += symbols.charAt(Math.floor(Math.random() * symbols.length));
+                const remainingLength = this.length - (name.length + num.length);
+                if (remainingLength > 0) {
+                    for(let s = 0; s < remainingLength; s++) {
+                        symStr += symbols.charAt(Math.floor(Math.random() * symbols.length));
+                    }
                 }
                 
-                results.push(`${name}${symStr}${num}`);
+                tempPwd = `${name}${symStr}${num}`;
             } else {
-                let wordCount = Math.max(Math.floor(this.length / 4), 3);
-                let words = [];
-                for (let w = 0; w < wordCount; w++) {
+                let words: string[] = [];
+                while (words.join("-").length < this.length) {
                     words.push(WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)]);
+                    if (words.join("-").length >= this.length) break;
                 }
-                results.push(words.join("-"));
+                tempPwd = words.join("-");
             }
+            
+            if (tempPwd.length > this.length) {
+                tempPwd = tempPwd.substring(0, this.length);
+            } else {
+                const extra = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+                while (tempPwd.length < this.length) {
+                    tempPwd += extra.charAt(Math.floor(Math.random() * extra.length));
+                }
+            }
+            
+            results.push(tempPwd);
         } else {
             let characters = "abcdefghijklmnopqrstuvwxyz";
             if (this.uppercase) characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
