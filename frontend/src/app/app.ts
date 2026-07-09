@@ -90,4 +90,12 @@ export class App {
   resetForm() {
     this.generatedPasswords.set(null);
   }
+
+  copyToClipboard(pwd: string) {
+    navigator.clipboard.writeText(pwd).then(() => {
+      alert('Password copied to clipboard!');
+    }).catch(err => {
+      console.error('Could not copy text: ', err);
+    });
+  }
 }
